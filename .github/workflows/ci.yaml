@@ -1,0 +1,26 @@
+name: ci
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "main"
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        go: ["1.14", "1.15"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go }}
+      - run: |
+          go test -cover -coverprofile coverage.txt -race -v ./...
+      - uses: codecov/codecov-action@v1
+      - run: |
+          cd ./bench
+          go test -bench . -benchmem
